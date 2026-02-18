@@ -26,3 +26,4 @@ Infrastructure stack for real-time fintech monitoring: Kafka, Postgres, and Kest
 
 - Kafka uses KRaft mode (no ZooKeeper)
 - Kestra starts only after Postgres and Kafka are healthy
+!!
