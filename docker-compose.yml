@@ -86,12 +86,12 @@ services:
             type: local
             local:
               base-path: "/app/storage"
-          plugins:
-            configurations:
+          tasks:
+            defaults:
               - type: io.kestra.plugin.scripts.runner.docker.Docker
                 values:
                   dockerHost: "unix:///var/run/docker.sock"
-                  networkMode: "finpulse-net"
+                  networkMode: "finpulse_finpulse-net"
     networks:
       - finpulse-net
     mem_limit: 1024m
