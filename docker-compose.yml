@@ -57,6 +57,8 @@ services:
 
   kestra:
     image: kestra/kestra:latest
+    privileged: true                          
+    user: "root" 
     container_name: finpulse-kestra
     restart: unless-stopped
     ports:
@@ -64,6 +66,8 @@ services:
     command: server local
     volumes:
       - ./kestra:/app/storage
+      - /Users/apple/.docker/run/docker.sock:/var/run/docker.sock  
+      - /tmp/kestra-wd:/tmp/kestra-wd
     env_file:
       - .env
     environment:
@@ -76,6 +80,11 @@ services:
             type: local
             local:
               base-path: "/app/storage"
+          tasks:
+            defaults:
+              - type: io.kestra.plugin.scripts.runner.docker.Docker
+                values:
+                  dockerHost: "unix:///var/run/docker.sock"
     mem_limit: 1024m
     cpus: 1.0
     depends_on:
