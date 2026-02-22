@@ -1,14 +1,17 @@
 version: '3.8'
 
+networks:
+  finpulse-net:
+    driver: bridge
+
 services:
   kafka:
     image: confluentinc/cp-kafka:7.5.0
     container_name: finpulse-kafka
     ports:
-      - "9092:9092"       # broker listener (inside Docker network)
-      - "29092:29092"     # host → container access
+      - "9092:9092"
+      - "29092:29092"
     environment:
-      # KRaft settings (single-node cluster)
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
@@ -23,10 +26,11 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       CLUSTER_ID: c2rUHdAEQama4mAx9B-kQA
-      # Reduce memory usage for laptop
       KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - kafka_data:/var/lib/kafka/data
+    networks:
+      - finpulse-net
     mem_limit: 768m
     cpus: 0.75
     healthcheck:
@@ -47,6 +51,8 @@ services:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - finpulse-net
     mem_limit: 512m
     cpus: 0.5
     healthcheck:
@@ -57,8 +63,8 @@ services:
 
   kestra:
     image: kestra/kestra:latest
-    privileged: true                          
-    user: "root" 
+    privileged: true
+    user: "root"
     container_name: finpulse-kestra
     restart: unless-stopped
     ports:
@@ -66,7 +72,7 @@ services:
     command: server local
     volumes:
       - ./kestra:/app/storage
-      - /Users/apple/.docker/run/docker.sock:/var/run/docker.sock  
+      - /Users/apple/.docker/run/docker.sock:/var/run/docker.sock
       - /tmp/kestra-wd:/tmp/kestra-wd
     env_file:
       - .env
@@ -80,11 +86,14 @@ services:
             type: local
             local:
               base-path: "/app/storage"
-          tasks:
-            defaults:
+          plugins:
+            configurations:
               - type: io.kestra.plugin.scripts.runner.docker.Docker
                 values:
                   dockerHost: "unix:///var/run/docker.sock"
+                  networkMode: "finpulse-net"
+    networks:
+      - finpulse-net
     mem_limit: 1024m
     cpus: 1.0
     depends_on:
