@@ -37,7 +37,7 @@ delta_path = f"abfss://{CONTAINER}@{STORAGE_ACCOUNT}.dfs.core.windows.net/prices
 #   PySpark 3.5.x → io.delta:delta-spark_2.12:3.1.0  ✅ (default below)
 #   PySpark 3.4.x → io.delta:delta-spark_2.12:2.4.0
 #   PySpark 3.3.x → io.delta:delta-spark_2.12:2.3.0
-# Check your version: python -c "import pyspark; print(pyspark.__version__)"
+# Check version: python -c "import pyspark; print(pyspark.__version__)"
 
 spark = SparkSession.builder \
     .appName("FinPulseDeltaSink") \
